@@ -14,6 +14,11 @@ DeepSeek Harness 设计美学技能包 —— 让 vibe coding 出来的网站摆
 [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![dsh](https://img.shields.io/badge/DeepSeek%20Harness-dsh--plugin-4176E6)](https://github.com/deepseek-ai/deepseek-harness)
 [![awesome · DSH plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+[![Live Preview](https://img.shields.io/badge/🔗_Live_Preview-GitHub_Pages-5e6ad2)](https://zhaiyateng.github.io/dsh-design-skills/)
+
+> 🖼️ **Try all 10 styles live** → [**zhaiyateng.github.io/dsh-design-skills**](https://zhaiyateng.github.io/dsh-design-skills/)
+>
+> 🖼️ **在线体验全部 10 种风格** → [**zhaiyateng.github.io/dsh-design-skills**](https://zhaiyateng.github.io/dsh-design-skills/)
 
 English | [中文](README.zh.md)
 
