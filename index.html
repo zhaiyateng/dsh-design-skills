@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsh-design-skills — 10 种设计风格画廊</title>
+<meta name="description" content="DeepSeek Harness 设计美学技能包：同一个产品，10 种设计风格。点击预览每个风格的完整落地页 demo。">
+<style>
+:root {
+  --bg: #0f1115;
+  --panel: #171a21;
+  --border: #262b36;
+  --ink: #e8eaed;
+  --muted: #9aa3af;
+  --accent: #5e6ad2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'PingFang SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 48px 24px 80px; }
+header { text-align: center; margin-bottom: 48px; }
+h1 { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
+.sub { color: var(--muted); font-size: 15px; max-width: 560px; margin: 0 auto 20px; }
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 4px 14px;
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+.card {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 12px 32px rgba(94, 106, 210, 0.15); }
+.thumb { width: 100%; display: block; border-bottom: 1px solid var(--border); }
+.meta { padding: 16px 18px 18px; }
+.meta h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.meta p { font-size: 13px; color: var(--muted); }
+footer {
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+}
+footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <span class="badge">DeepSeek Harness · dsh-design-skills</span>
+    <h1>同一个产品，十种设计风格</h1>
+    <p class="sub">这是虚构的 Agent 编排平台 "Relay" 的落地页，用 10 种不同的设计语言重做了一遍。<br>点击任意卡片预览完整 Demo —— 这就是本技能包对 vibe coding 产物的实际影响。</p>
+  </header>
+
+  <div class="grid" id="gallery"></div>
+
+  <footer>
+    <p>技能包仓库：<a href="https://github.com/zhaiyateng/dsh-design-skills">zhaiyateng/dsh-design-skills</a> · 每个风格包含 SKILL.md 规范 + 可运行 demo + 验收清单</p>
+    <p style="margin-top:8px; font-size:12px;">Demo 仅作风格展示，与所列品牌无任何隶属或背书关系。</p>
+  </footer>
+</div>
+
+<script>
+const styles = [
+  { name: 'dark-saas', label: '深色 SaaS', desc: 'Linear 式 · 近黑画布 · 单一强调色', file: 'dark-saas-landing.html' },
+  { name: 'apple-minimal', label: '极简白', desc: 'Apple 式 · 大留白 · 细字重标题', file: 'apple-minimal-landing.html' },
+  { name: 'neo-neumorphism', label: '新拟态', desc: 'Soft UI · 双阴影浮雕 · 柔和圆润', file: 'neo-neumorphism-landing.html' },
+  { name: 'brutalism', label: '粗野主义', desc: '硬边框 · 直角 · 原色点缀', file: 'brutalism-landing.html' },
+  { name: 'glassmorphism', label: '毛玻璃', desc: '渐变底 · 磨砂玻璃卡片 · 通透', file: 'glassmorphism-landing.html' },
+  { name: 'japanese-minimal', label: '日式极简', desc: '衬线 · 朱红点缀 · 侘寂留白', file: 'japanese-minimal-landing.html' },
+  { name: 'bento-grid', label: '便当盒', desc: '模块化网格 · 严格对齐 · 现代克制', file: 'bento-grid-landing.html' },
+  { name: 'cyberpunk', label: '赛博朋克', desc: '霓虹 glow · 暗黑科技 · HUD 角标', file: 'cyberpunk-landing.html' },
+  { name: 'vaporwave', label: '蒸汽波', desc: '粉紫天空 · 复古太阳 · 80s 未来', file: 'vaporwave-landing.html' },
+  { name: 'art-deco', label: '装饰艺术', desc: '金黑配色 · 衬线大字距 · 几何装饰', file: 'art-deco-landing.html' },
+];
+
+const gallery = document.getElementById('gallery');
+gallery.innerHTML = styles.map(s => `
+  <a class="card" href="${s.file}">
+    <img class="thumb" src="${s.name}-landing.png" alt="${s.label} 预览" loading="lazy">
+    <div class="meta">
+      <h3>${s.label} <code style="font-size:12px; color:var(--muted);">${s.name}</code></h3>
+      <p>${s.desc}</p>
+    </div>
+  </a>
+`).join('');
+</script>
+</body>
+</html>
