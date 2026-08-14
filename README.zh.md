@@ -13,18 +13,18 @@
 
 ## 效果预览
 
-同一产品（虚构的 Agent 编排平台 "Relay"）的六种风格效果——这就是本技能包对
+同一产品（虚构的 Agent 编排平台 "Relay"）的十种风格效果——这就是本技能包对
 vibe coding 产物的实际影响：
 
-| `dark-saas`（深色，Linear 式） | `apple-minimal`（极简白） | `neo-neumorphism`（新拟态） |
-|---|---|---|
-| ![dark-saas 落地页演示](assets/dark-saas-landing.png) | ![apple-minimal 落地页演示](assets/apple-minimal-landing.png) | ![neo-neumorphism 落地页演示](assets/neo-neumorphism-landing.png) |
+| `dark-saas`（深色） | `apple-minimal`（极简白） | `neo-neumorphism`（新拟态） | `brutalism`（粗野主义） | `glassmorphism`（毛玻璃） |
+|---|---|---|---|---|
+| ![dark-saas 落地页演示](assets/dark-saas-landing.png) | ![apple-minimal 落地页演示](assets/apple-minimal-landing.png) | ![neo-neumorphism 落地页演示](assets/neo-neumorphism-landing.png) | ![brutalism 落地页演示](assets/brutalism-landing.png) | ![glassmorphism 落地页演示](assets/glassmorphism-landing.png) |
 
-| `brutalism`（粗野主义） | `glassmorphism`（毛玻璃） | `japanese-minimal`（日式极简） |
-|---|---|---|
-| ![brutalism 落地页演示](assets/brutalism-landing.png) | ![glassmorphism 落地页演示](assets/glassmorphism-landing.png) | ![japanese-minimal 落地页演示](assets/japanese-minimal-landing.png) |
+| `japanese-minimal`（日式极简） | `bento-grid`（便当盒） | `cyberpunk`（赛博朋克） | `vaporwave`（蒸汽波） | `art-deco`（装饰艺术） |
+|---|---|---|---|---|
+| ![japanese-minimal 落地页演示](assets/japanese-minimal-landing.png) | ![bento-grid 落地页演示](assets/bento-grid-landing.png) | ![cyberpunk 落地页演示](assets/cyberpunk-landing.png) | ![vaporwave 落地页演示](assets/vaporwave-landing.png) | ![art-deco 落地页演示](assets/art-deco-landing.png) |
 
-Demo 源码：[`examples/dark-saas-landing.html`](examples/dark-saas-landing.html) · [`examples/apple-minimal-landing.html`](examples/apple-minimal-landing.html) · [`examples/neo-neumorphism-landing.html`](examples/neo-neumorphism-landing.html) · [`examples/brutalism-landing.html`](examples/brutalism-landing.html) · [`examples/glassmorphism-landing.html`](examples/glassmorphism-landing.html) · [`examples/japanese-minimal-landing.html`](examples/japanese-minimal-landing.html)
+Demo 源码：[`examples/dark-saas-landing.html`](examples/dark-saas-landing.html) · [`examples/apple-minimal-landing.html`](examples/apple-minimal-landing.html) · [`examples/neo-neumorphism-landing.html`](examples/neo-neumorphism-landing.html) · [`examples/brutalism-landing.html`](examples/brutalism-landing.html) · [`examples/glassmorphism-landing.html`](examples/glassmorphism-landing.html) · [`examples/japanese-minimal-landing.html`](examples/japanese-minimal-landing.html) · [`examples/bento-grid-landing.html`](examples/bento-grid-landing.html) · [`examples/cyberpunk-landing.html`](examples/cyberpunk-landing.html) · [`examples/vaporwave-landing.html`](examples/vaporwave-landing.html) · [`examples/art-deco-landing.html`](examples/art-deco-landing.html)
 
 ## 包含的技能
 
@@ -36,6 +36,10 @@ Demo 源码：[`examples/dark-saas-landing.html`](examples/dark-saas-landing.htm
 | [`brutalism`](skills/brutalism/SKILL.md) | 粗野主义 / Brutalism | 实验性产品、艺术/独立项目、开发者工具 |
 | [`glassmorphism`](skills/glassmorphism/SKILL.md) | 毛玻璃 / Glassmorphism | AI 产品、SaaS 官网、Dashboard、演示 Demo |
 | [`japanese-minimal`](skills/japanese-minimal/SKILL.md) | 日式极简 / Japanese Minimal | 文化/美学类产品、博客、艺术展、和风品牌 |
+| [`bento-grid`](skills/bento-grid/SKILL.md) | 便当盒 / Bento Grid | 产品官网、功能展示、SaaS 首页、个人主页 |
+| [`cyberpunk`](skills/cyberpunk/SKILL.md) | 赛博朋克 / Cyberpunk | 科技产品、AI 工具、游戏、极客向落地页 |
+| [`vaporwave`](skills/vaporwave/SKILL.md) | 蒸汽波 / Vaporwave | 艺术项目、音乐/文化向站点、实验性落地页 |
+| [`art-deco`](skills/art-deco/SKILL.md) | 装饰艺术 / Art Deco | 高端品牌、奢华酒店、艺术/时尚类站点 |
 
 ## 安装
 
@@ -57,6 +61,10 @@ dsh plugin --profile web add dsh-design-skills
 - 「粗野主义风格的开发者工具官网」→ 自动匹配 `brutalism`
 - 「毛玻璃效果的 AI 产品首页」→ 自动匹配 `glassmorphism`
 - 「日式极简、禅意风格的品牌站」→ 自动匹配 `japanese-minimal`
+- 「便当盒布局的产品功能页」→ 自动匹配 `bento-grid`
+- 「赛博朋克霓虹风格的 AI 工具」→ 自动匹配 `cyberpunk`
+- 「蒸汽波风格的实验站点」→ 自动匹配 `vaporwave`
+- 「装饰艺术奢华风格的品牌官网」→ 自动匹配 `art-deco`
 
 技能通过渐进式披露工作：会话开始时模型只看到技能名与描述，
 当任务匹配时才加载完整 SKILL.md（token、组件规则、禁用清单）。
@@ -69,7 +77,7 @@ dsh plugin --profile web add dsh-design-skills
 
 ## 路线图
 
-- [x] 六种风格：深色 SaaS、极简白、新拟态、粗野主义、毛玻璃、日式极简
+- [x] 十种风格：深色 SaaS、极简白、新拟态、粗野主义、毛玻璃、日式极简、便当盒、赛博朋克、蒸汽波、装饰艺术
 - [x] 每种风格的完整落地页 demo 代码（可一键复制）+ 宣传截图
 - [ ] 场景化工作流 skill：落地页 / 作品集 / 文档站 / SaaS 后台
 - [ ] 设计 token 的 Tailwind / CSS variables 双格式输出

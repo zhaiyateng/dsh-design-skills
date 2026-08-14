@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relay — Agent orchestration for production teams</title>
+<meta name="description" content="Relay is the orchestration console for AI agents in production. Route, observe, and recover every run from one surface.">
+<style>
+/* ============================================================
+   bento-grid design tokens
+   Reference: skills/bento-grid/SKILL.md · THIRD_PARTY_NOTICES.md
+   ============================================================ */
+:root {
+  --canvas:     #ffffff;
+  --canvas-alt: #f5f5f7;
+  --ink:        #1d1d1f;
+  --ink-muted:  #6e6e73;
+  --accent:     #0071e3;
+
+  --card-radius: 20px;
+  --gap: 16px;
+  --card-pad: 24px;
+
+  --tile-1: #eef2ff;  --tile-2: #f5f0ff;  --tile-3: #e8f5ee;
+  --tile-4: #fff7e6;  --tile-5: #fdf0ef;  --tile-6: #f0f4f8;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+.container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Typography ---------- */
+.display-xl { font-size: 56px; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
+.display-lg { font-size: 40px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+.card-title { font-size: 20px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+.lead { font-size: 18px; color: var(--ink-muted); }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.mono { font-family: var(--font-mono); font-size: 13px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 26px; border-radius: 980px; font-size: 14px; font-weight: 500;
+  color: var(--ink); background: var(--canvas-alt); border: 1px solid #e0e0e5;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn-lg { padding: 15px 30px; font-size: 15px; }
+
+/* ---------- Nav ---------- */
+.nav { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.85); backdrop-filter: blur(14px); }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; border-bottom: 1px solid #ececf0; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 700; }
+.nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--ink-muted); }
+.nav-links a:hover { color: var(--ink); }
+.nav-cta { padding: 9px 18px; font-size: 13px; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 96px 0 64px; text-align: center; }
+.hero .eyebrow { display: block; margin-bottom: 20px; }
+.hero h1 { max-width: 680px; margin: 0 auto 20px; }
+.hero .lead { max-width: 520px; margin: 0 auto 36px; }
+.hero-actions { display: flex; gap: 12px; justify-content: center; }
+.hero-note { margin-top: 16px; font-size: 13px; color: var(--ink-muted); }
+
+/* ---------- Bento grid ---------- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 120px;
+  grid-auto-flow: dense;
+  gap: var(--gap);
+  margin-top: 56px;
+}
+.tile {
+  border-radius: var(--card-radius);
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.tile-icon {
+  width: 36px; height: 36px; border-radius: 11px;
+  background: rgba(255,255,255,0.7);
+  display: grid; place-items: center;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+.tile h3 { margin-bottom: 6px; }
+.tile p { font-size: 13px; color: var(--ink-muted); line-height: 1.5; }
+
+.tile-lg   { grid-column: span 2; grid-row: span 2; }
+.tile-w    { grid-column: span 2; }
+.tile-h    { grid-row: span 2; }
+.tile-1x1  { grid-column: span 1; grid-row: span 1; }
+
+/* tile sizes */
+.tile-a { background: var(--tile-1); }
+.tile-b { background: var(--tile-2); }
+.tile-c { background: var(--tile-3); }
+.tile-d { background: var(--tile-4); }
+.tile-e { background: var(--tile-5); }
+.tile-f { background: var(--tile-6); }
+
+/* big tile: terminal-ish visual */
+.term-mini { background: #0f1420; border-radius: 14px; padding: 14px; margin-top: 8px; flex: 1; font-family: var(--font-mono); font-size: 12px; color: #7dd3fc; line-height: 1.8; }
+.term-mini .ok { color: #34d399; }
+
+/* metric tiles */
+.metric-num { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.metric-label { font-size: 12px; color: var(--ink-muted); }
+
+/* mini bar chart in tile */
+.bars { display: flex; align-items: flex-end; gap: 6px; flex: 1; margin-top: 12px; }
+.bars span { flex: 1; border-radius: 4px 4px 0 0; background: rgba(0,113,227,0.35); }
+.bars span:nth-child(1){height:40%} .bars span:nth-child(2){height:65%} .bars span:nth-child(3){height:50%}
+.bars span:nth-child(4){height:85%} .bars span:nth-child(5){height:60%} .bars span:nth-child(6){height:95%}
+
+/* ---------- Sections ---------- */
+.section { padding: 96px 0; }
+.section-head { max-width: 560px; margin: 0 auto 56px; text-align: center; }
+.section-head .eyebrow { display: block; margin-bottom: 14px; }
+.section-head h2 { margin-bottom: 14px; }
+.section-head p { color: var(--ink-muted); font-size: 16px; }
+
+/* ---------- Pricing (bento cards) ---------- */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); align-items: stretch; }
+.price-card { background: var(--canvas-alt); border-radius: var(--card-radius); padding: 32px 28px; display: flex; flex-direction: column; }
+.price-card.featured { background: var(--tile-1); }
+.price-name { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); margin-bottom: 14px; }
+.price-amount { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.price-period { font-size: 13px; color: var(--ink-muted); margin-bottom: 20px; }
+.price-features { list-style: none; margin-bottom: 24px; flex: 1; }
+.price-features li { padding: 8px 0; font-size: 14px; color: var(--ink-muted); border-bottom: 1px solid #e5e5ea; }
+.price-features li:last-child { border-bottom: none; }
+.price-card .btn { width: 100%; }
+
+/* ---------- CTA ---------- */
+.cta { text-align: center; background: var(--canvas-alt); border-radius: 28px; padding: 64px 32px; }
+.cta h2 { margin-bottom: 14px; }
+.cta p { color: var(--ink-muted); margin-bottom: 32px; }
+
+/* ---------- Footer ---------- */
+.footer { padding: 48px 0 64px; border-top: 1px solid #ececf0; margin-top: 48px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+.footer-col p { font-size: 12px; color: var(--ink-muted); max-width: 240px; line-height: 1.6; }
+.footer-col h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); margin-bottom: 12px; }
+.footer-col ul { list-style: none; }
+.footer-col li { padding: 5px 0; }
+.footer-col a { font-size: 13px; color: var(--ink-muted); }
+.footer-col a:hover { color: var(--ink); }
+.footer-bottom { border-top: 1px solid #ececf0; padding-top: 20px; display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-muted); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .display-xl { font-size: 40px; }
+  .bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 100px; }
+  .tile-lg, .tile-w { grid-column: span 2; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+  .hero { padding: 72px 0 48px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="brand"><span class="brand-mark">R</span> Relay</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#docs">Docs</a>
+    </div>
+    <a href="#" class="btn btn-primary nav-cta">Get started</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Agent orchestration · now in GA</span>
+    <h1 class="display-xl">Ship agent workflows with confidence</h1>
+    <p class="lead">Relay is the orchestration console for AI agents in production. Route, observe, and recover every run from one surface.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn btn-primary btn-lg">Start free</a>
+      <a href="#features" class="btn btn-lg">Read the docs</a>
+    </div>
+    <p class="hero-note">No credit card required · Deploy on your own infra</p>
+
+    <!-- Bento grid -->
+    <div class="bento">
+      <div class="tile tile-a tile-lg">
+        <div class="tile-icon">⌁</div>
+        <h3 class="card-title">Intelligent routing</h3>
+        <p>Route every request by capability, cost, and latency. Cache hits skip the expensive path automatically — your bill drops without touching your code.</p>
+        <div class="term-mini">
+<span>$ relay run research.deep-dive --budget $2</span><br>
+<span>→ plan · 4 steps · <span class="ok">deepseek-v4 @ $0.28</span></span><br>
+<span>→ tool: web_search · <span class="ok">cached hit</span></span><br>
+<span>✓ <span class="ok">done</span> · 2m 14s · $0.61</span>
+        </div>
+      </div>
+
+      <div class="tile tile-b tile-h">
+        <div class="tile-icon">◉</div>
+        <h3 class="card-title">Observability</h3>
+        <p>Every tool call, token, and decision is a first-class trace.</p>
+        <div class="bars">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p style="margin-top:8px">p95 12ms</p>
+      </div>
+
+      <div class="tile tile-c tile-1x1">
+        <div class="tile-icon">↻</div>
+        <h3 class="card-title">Self-healing</h3>
+        <p>Timeouts retry, tools degrade, sessions resume from checkpoint.</p>
+      </div>
+
+      <div class="tile tile-d tile-1x1">
+        <div class="tile-icon">▤</div>
+        <h3 class="card-title">Budget guards</h3>
+        <p>Hard caps enforced at the request layer. No silent overruns.</p>
+      </div>
+
+      <div class="tile tile-e tile-w">
+        <div class="tile-icon">⇄</div>
+        <h3 class="card-title">Any provider</h3>
+        <p>DeepSeek, Anthropic, OpenAI, and your own gateway — one interface, one telemetry stream. Bring your keys, keep your data.</p>
+      </div>
+
+      <div class="tile tile-f tile-w">
+        <div class="metric-num">2.3M</div>
+        <div class="metric-label">Runs orchestrated in the last 30 days</div>
+        <div class="bars" style="background:transparent">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="tile tile-b tile-1x1">
+        <div class="metric-num">99.99%</div>
+        <div class="metric-label">Runs completed without intervention</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Pricing</span>
+      <h2 class="display-lg">Start free. Scale when you're ready.</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-amount">$0</div>
+        <div class="price-period">forever · 100 runs/mo</div>
+        <ul class="price-features">
+          <li>1 project · 2 agents</li>
+          <li>Basic observability</li>
+          <li>Community support</li>
+        </ul>
+        <a href="#" class="btn">Start free</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-name">Team</div>
+        <div class="price-amount">$49</div>
+        <div class="price-period">per month · unlimited</div>
+        <ul class="price-features">
+          <li>Unlimited agents &amp; projects</li>
+          <li>Budget guards &amp; routing</li>
+          <li>Full traces &amp; exports</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Start 14-day trial</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-amount">Custom</div>
+        <div class="price-period">annual · self-hosted</div>
+        <ul class="price-features">
+          <li>Self-hosted deployment</li>
+          <li>SSO &amp; audit logs</li>
+          <li>Dedicated gateway</li>
+          <li>SLA &amp; onboarding</li>
+        </ul>
+        <a href="#" class="btn">Contact sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="cta">
+      <h2 class="display-lg">Put your agents to work — with a leash.</h2>
+      <p>Deploy in minutes, tune in days, trust from the first run.</p>
+      <a href="#" class="btn btn-primary btn-lg">Get started free</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" id="docs">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom:14px;">Relay</div>
+        <p>Agent orchestration for production teams. Built for engineers who ship.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API reference</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Relay Systems, Inc.</span>
+      <span>Privacy · Terms · Security</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
