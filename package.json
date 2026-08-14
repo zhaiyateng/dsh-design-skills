@@ -1,7 +1,7 @@
 {
   "name": "dsh-design-skills",
   "version": "0.1.0",
-  "description": "Design aesthetics skill pack for DeepSeek Harness: dark SaaS, Apple-minimal, and neumorphism visual styles that keep vibe-coded websites away from the AI look. / DeepSeek Harness 设计美学技能包：深色 SaaS、苹果极简、新拟态三种风格，让 vibe coding 摆脱 AI 味。",
+  "description": "Design aesthetics skill pack for DeepSeek Harness (DSH): 6 styles — dark SaaS, minimal white, neumorphism, brutalism, glassmorphism, Japanese minimal — with runnable landing-page demos. Keeps vibe-coded websites away from the AI look. / DeepSeek Harness 设计美学技能包：6 种风格（深色 SaaS、极简白、新拟态、粗野主义、毛玻璃、日式极简），附可运行落地页 demo，让 vibe coding 摆脱 AI 味。",
   "type": "module",
   "main": "index.js",
   "exports": {
@@ -13,6 +13,8 @@
     "cordis.patch.yml",
     "skills",
     "references",
+    "examples",
+    "assets",
     "THIRD_PARTY_NOTICES.md"
   ],
   "license": "MIT",
