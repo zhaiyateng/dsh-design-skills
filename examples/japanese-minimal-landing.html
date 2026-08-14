@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relay — Agent orchestration for production teams</title>
+<meta name="description" content="Relay is the orchestration console for AI agents in production. Route, observe, and recover every run from one surface.">
+<style>
+/* ============================================================
+   japanese-minimal design tokens (和式極簡 / zen serif)
+   Reference: skills/japanese-minimal/SKILL.md · THIRD_PARTY_NOTICES.md
+   ============================================================ */
+:root {
+  --paper:       #fafaf7;
+  --ink:         #1a1a18;
+  --ink-muted:   #6b675e;
+  --ink-subtle:  #a09a8d;
+  --line:        #d8d5cd;
+  --vermilion:   #c3272b;
+
+  --font-serif:  'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif SC', 'Songti SC', 'SimSun', 'Noto Serif JP', Georgia, 'Times New Roman', serif;
+  --font-sans:   'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+
+  --space: 96px;
+}
+
+/* ---------- Reset & base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+
+/* ---------- Typography (serif, light weight, generous spacing) ---------- */
+.display-xl {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+.display-lg {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0.05em;
+}
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+.lead { font-size: 16px; color: var(--ink-muted); font-weight: 400; line-height: 2; }
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.mono { font-family: var(--font-serif); font-size: 13px; letter-spacing: 0.05em; }
+
+/* ---------- Vermilion seal (朱印) ---------- */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--vermilion);
+  color: #ffffff;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+  user-select: none;
+}
+
+/* ---------- Hairline divider ---------- */
+.rule { border: none; border-top: 1px solid var(--line); margin: 0; }
+
+/* ---------- Buttons (quiet, hairline) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 34px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  transition: background 200ms ease, color 200ms ease;
+}
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn-vermilion { background: var(--vermilion); border-color: var(--vermilion); color: #fff; }
+.btn-vermilion:hover { background: #a81f23; color: #fff; }
+
+/* ---------- Nav (hairline bottom) ---------- */
+.nav { position: sticky; top: 0; z-index: 50; background: rgba(250, 250, 247, 0.92); }
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+}
+.brand-mark {
+  width: 32px; height: 32px;
+  background: var(--ink);
+  color: var(--paper);
+  display: grid; place-items: center;
+  font-size: 14px;
+}
+.nav-links { display: flex; gap: 40px; }
+.nav-links a {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.nav-links a:hover { color: var(--vermilion); }
+.nav-cta { padding: 10px 24px; font-size: 12px; }
+
+/* ---------- Hero (ma: generous whitespace) ---------- */
+.hero { padding: 140px 0 96px; text-align: center; position: relative; }
+.hero .eyebrow { display: block; margin-bottom: 28px; }
+.hero h1 { max-width: 640px; margin: 0 auto 28px; }
+.hero .lead { max-width: 480px; margin: 0 auto 44px; }
+.hero-actions { display: flex; gap: 20px; justify-content: center; }
+.hero-note { margin-top: 28px; font-size: 12px; color: var(--ink-subtle); letter-spacing: 0.1em; }
+
+/* Vertical side inscription (竖排落款) */
+.vertical-inscription {
+  position: absolute;
+  top: 140px;
+  right: -8px;
+  writing-mode: vertical-rl;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.4em;
+  color: var(--ink-subtle);
+}
+
+/* ---------- Product panel (quiet, hairline, whitespace) ---------- */
+.product-panel {
+  margin-top: 64px;
+  padding: 40px;
+  text-align: left;
+  border: 1px solid var(--line);
+  position: relative;
+}
+.panel-toolbar { display: flex; align-items: center; gap: 12px; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
+.panel-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.panel-dot.vermilion { background: var(--vermilion); }
+.panel-title { margin-left: 6px; font-size: 12px; color: var(--ink-subtle); letter-spacing: 0.15em; }
+.panel-line { display: flex; gap: 16px; align-items: baseline; padding: 7px 0; }
+.panel-prompt { color: var(--vermilion); font-size: 13px; }
+.panel-cmd { font-size: 13px; }
+.panel-out { color: var(--ink-muted); font-size: 13px; }
+.panel-out b { color: var(--ink); font-weight: 500; }
+
+/* ---------- Sections ---------- */
+.section { padding: var(--space) 0; }
+.section-head { max-width: 560px; margin: 0 auto 64px; text-align: center; }
+.section-head .eyebrow { display: block; margin-bottom: 20px; }
+.section-head h2 { margin-bottom: 20px; }
+.section-head p { color: var(--ink-muted); font-size: 15px; }
+
+/* ---------- Feature list (hairline rows, no cards) ---------- */
+.feature-list { border-top: 1px solid var(--line); }
+.feature {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 32px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+.feature .feat-index { font-family: var(--font-sans); font-size: 12px; letter-spacing: 0.2em; color: var(--ink-subtle); padding-top: 6px; }
+.feature h3 { margin-bottom: 10px; }
+.feature p { font-size: 14px; color: var(--ink-muted); line-height: 2; }
+
+/* ---------- Metrics (numbers with hairlines) ---------- */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 48px 0;
+}
+.metric { text-align: center; }
+.metric .mono { font-size: 36px; font-weight: 400; letter-spacing: 0.02em; color: var(--ink); }
+.metric .label { font-size: 11px; color: var(--ink-subtle); margin-top: 10px; letter-spacing: 0.15em; font-family: var(--font-sans); }
+
+/* ---------- Code (quiet block) ---------- */
+.code-block {
+  border: 1px solid var(--line);
+  padding: 32px;
+  background: #ffffff;
+  overflow-x: auto;
+}
+.code-block pre { font-family: var(--font-serif); font-size: 13px; line-height: 2; color: var(--ink); }
+.tok-kw  { color: var(--vermilion); }
+.tok-str { color: var(--ink-muted); }
+.tok-num { color: var(--ink-muted); }
+.tok-com { color: var(--ink-subtle); }
+
+/* ---------- Pricing (hairline) ---------- */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.price-card { padding: 40px 32px; border-right: 1px solid var(--line); text-align: center; }
+.price-card:last-child { border-right: none; }
+.price-card.featured { background: #f4f2ea; }
+.price-name { font-size: 13px; letter-spacing: 0.2em; color: var(--ink-muted); margin-bottom: 16px; font-family: var(--font-sans); }
+.price-amount { font-size: 40px; font-weight: 400; letter-spacing: 0.02em; margin-bottom: 6px; }
+.price-period { font-size: 12px; color: var(--ink-subtle); margin-bottom: 24px; }
+.price-features { list-style: none; margin-bottom: 28px; }
+.price-features li { padding: 8px 0; font-size: 13px; color: var(--ink-muted); }
+.price-card .btn { width: 100%; }
+
+/* ---------- CTA ---------- */
+.cta { text-align: center; padding: 72px 32px; border: 1px solid var(--line); background: #ffffff; }
+.cta h2 { margin-bottom: 16px; }
+.cta p { color: var(--ink-muted); margin-bottom: 36px; font-size: 15px; }
+
+/* ---------- Footer (hairline top) ---------- */
+.footer { padding: 48px 0 64px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+.footer-col p { font-size: 12px; color: var(--ink-subtle); max-width: 240px; line-height: 2; }
+.footer-col h4 { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 16px; }
+.footer-col ul { list-style: none; }
+.footer-col li { padding: 5px 0; }
+.footer-col a { font-size: 13px; color: var(--ink-muted); }
+.footer-col a:hover { color: var(--vermilion); }
+.footer-bottom {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-subtle);
+  letter-spacing: 0.1em;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .display-xl { font-size: 36px; }
+  .display-lg { font-size: 30px; }
+  .feature { grid-template-columns: 1fr; gap: 8px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card { border-right: none; border-bottom: 1px solid var(--line); }
+  .price-card:last-child { border-bottom: none; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+  .hero { padding: 96px 0 64px; }
+  .section { padding: 64px 0; }
+  .vertical-inscription { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= Nav ================= -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="brand"><span class="brand-mark">R</span> Relay</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#docs">Docs</a>
+    </div>
+    <a href="#" class="btn nav-cta">Get started</a>
+  </div>
+</nav>
+
+<!-- ================= Hero ================= -->
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Agent orchestration · now in GA</span>
+    <h1 class="display-xl">Ship agent workflows<br>with confidence</h1>
+    <p class="lead">Relay is the orchestration console for AI agents in production. Route, observe, and recover every run from one surface.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn btn-vermilion">Start free</a>
+      <a href="#features" class="btn">Read the docs</a>
+    </div>
+    <p class="hero-note">NO CREDIT CARD REQUIRED · DEPLOY ON YOUR OWN INFRA</p>
+    <span class="seal" style="position:absolute; top:96px; left:24px;">信</span>
+    <span class="vertical-inscription">静寂に進む　—　Relay 二〇二六</span>
+
+    <!-- Product panel -->
+    <div class="product-panel">
+      <div class="panel-toolbar">
+        <span class="panel-dot vermilion"></span>
+        <span class="panel-dot"></span>
+        <span class="panel-dot"></span>
+        <span class="panel-title">RELAY — SESSION #4821</span>
+      </div>
+      <div class="panel-line"><span class="panel-prompt">$</span><span class="panel-cmd">relay run research.deep-dive --budget $2</span></div>
+      <div class="panel-line"><span class="panel-prompt">→</span><span class="panel-out">plan · 4 steps · routed to deepseek-v4 @ $0.28</span></div>
+      <div class="panel-line"><span class="panel-prompt">→</span><span class="panel-out">tool: web_search · 12 sources · cached hit</span></div>
+      <div class="panel-line"><span class="panel-prompt">→</span><span class="panel-out">tool: write_report · 1,840 tokens · <b>ok</b></span></div>
+      <div class="panel-line"><span class="panel-prompt">→</span><span class="panel-out">recovered: retry ×1 on tool timeout (58ms)</span></div>
+      <div class="panel-line"><span class="panel-prompt">✓</span><span class="panel-out"><b>done</b> · 2m 14s · $0.61 · p95 latency 12ms</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= Features ================= -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Why Relay</span>
+      <h2 class="display-lg">Everything your agents need,<br>nothing they don't</h2>
+      <p>Four primitives cover the full lifecycle of a production agent run. Compose them, don't bolt them on.</p>
+    </div>
+    <div class="feature-list">
+      <div class="feature">
+        <div class="feat-index">壹</div>
+        <div>
+          <h3 class="card-title">Intelligent routing</h3>
+          <p>Route every request by capability, cost, and latency. Cache hits skip the expensive path automatically.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feat-index">贰</div>
+        <div>
+          <h3 class="card-title">Full observability</h3>
+          <p>Every tool call, token, and decision is a first-class trace. Drill from a failed run to its root cause.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feat-index">叁</div>
+        <div>
+          <h3 class="card-title">Self-healing runs</h3>
+          <p>Timeouts retry with backoff, failed tools degrade to fallbacks, and sessions resume from checkpoint.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Metrics ================= -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="metrics">
+      <div class="metric"><div class="mono">99.99%</div><div class="label">Runs w/o intervention</div></div>
+      <div class="metric"><div class="mono">−42%</div><div class="label">Median token cost</div></div>
+      <div class="metric"><div class="mono">12ms</div><div class="label">p95 overhead</div></div>
+      <div class="metric"><div class="mono">2.3M</div><div class="label">Runs / 30 days</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Code ================= -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Drop-in config</span>
+      <h2 class="display-lg">One file. Zero loop changes.</h2>
+      <p>Relay wraps your existing agent behind a thin config layer.</p>
+    </div>
+    <div class="code-block">
+<pre><span class="tok-com"># relay.yaml — start with defaults, tune as you grow</span>
+<span class="tok-kw">session</span>:
+  <span class="tok-kw">budget</span>: <span class="tok-num">$5.00</span>            <span class="tok-com"># hard cap, enforced pre-request</span>
+  <span class="tok-kw">resume</span>: <span class="tok-kw">true</span>             <span class="tok-com"># checkpoint on interrupt</span>
+
+<span class="tok-kw">routing</span>:
+  <span class="tok-kw">default</span>: <span class="tok-str">deepseek-v4</span>
+  <span class="tok-kw">fallback</span>: [ <span class="tok-str">deepseek-v3</span>, <span class="tok-str">gpt-oss</span> ]
+  <span class="tok-kw">cache</span>: <span class="tok-str">read</span>             <span class="tok-com"># reuse prior turns</span>
+
+<span class="tok-kw">tools</span>:
+  <span class="tok-kw">timeout</span>: <span class="tok-num">30s</span>
+  <span class="tok-kw">retry</span>: <span class="tok-num">2</span>
+  <span class="tok-kw">degrade</span>: <span class="tok-kw">true</span>
+
+<span class="tok-kw">telemetry</span>:
+  <span class="tok-kw">traces</span>: <span class="tok-kw">true</span>
+  <span class="tok-kw">export</span>: <span class="tok-str">./relay-runs.jsonl</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Pricing ================= -->
+<section class="section" id="pricing" style="padding-top:0;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Pricing</span>
+      <h2 class="display-lg">Start free. Scale when you're ready.</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-amount">$0</div>
+        <div class="price-period">forever · 100 runs/mo</div>
+        <ul class="price-features">
+          <li>1 project · 2 agents</li>
+          <li>Basic observability</li>
+          <li>Community support</li>
+        </ul>
+        <a href="#" class="btn">Start free</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-name">Team</div>
+        <div class="price-amount">$49</div>
+        <div class="price-period">per month · unlimited</div>
+        <ul class="price-features">
+          <li>Unlimited agents &amp; projects</li>
+          <li>Budget guards &amp; routing</li>
+          <li>Full traces &amp; exports</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="btn btn-vermilion">Start 14-day trial</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-amount">Custom</div>
+        <div class="price-period">annual · self-hosted</div>
+        <ul class="price-features">
+          <li>Self-hosted deployment</li>
+          <li>SSO &amp; audit logs</li>
+          <li>Dedicated gateway</li>
+          <li>SLA &amp; onboarding</li>
+        </ul>
+        <a href="#" class="btn">Contact sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="cta">
+      <h2 class="display-lg">Put your agents to work — with a leash.</h2>
+      <p>Deploy in minutes, tune in days, trust from the first run.</p>
+      <a href="#" class="btn btn-vermilion">Get started free</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Footer ================= -->
+<footer class="footer" id="docs">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom:16px;">Relay</div>
+        <p>Agent orchestration for production teams. Built for engineers who ship.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API reference</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 RELAY SYSTEMS, INC.</span>
+      <span>PRIVACY · TERMS · SECURITY</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
